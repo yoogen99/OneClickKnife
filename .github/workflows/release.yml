@@ -1,0 +1,54 @@
+name: Build and release
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check Python syntax
+        run: python -m py_compile __init__.py scripts/build_release.py
+      - name: Build ZIP
+        run: python scripts/build_release.py
+      - name: Check version tag
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python scripts/build_release.py --tag "$RELEASE_TAG"
+      - name: Check tracked ZIP is up to date
+        run: cmp OneClickKnife.zip dist/OneClickKnife.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OneClickKnife
+          path: dist/OneClickKnife.zip
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: OneClickKnife
+          path: dist
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: gh release create "$RELEASE_TAG" dist/OneClickKnife.zip --verify-tag --title "OneClickKnife $RELEASE_TAG" --generate-notes

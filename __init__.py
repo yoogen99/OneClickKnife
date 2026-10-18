@@ -1,10 +1,16 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# This program is free software under the GNU General Public License,
+# version 3 or (at your option) any later version. See LICENSE.
+
 bl_info = {
     "name": "OneClickKnife",
     "author": "OpenAI",
-    "version": (1, 0, 0),
+    "version": (1, 0, 1),
     "blender": (3, 6, 0),
     "location": "3D Viewport > Object Mode > Right-click menu",
-    "description": "Project the first selected mesh onto the active mesh with Knife Project",
+    "description": "Project a selected mesh or curve onto the active mesh with Knife Project",
+    "doc_url": "https://github.com/yoogen99/OneClickKnife#readme",
+    "tracker_url": "https://github.com/yoogen99/OneClickKnife/issues",
     "category": "Mesh",
 }
 
@@ -12,12 +18,12 @@ import bpy
 
 
 class MESH_OT_one_click_knife(bpy.types.Operator):
-    """Use the non-active selected mesh as the cutter and the active mesh as the target"""
+    """Use the non-active mesh or curve as the cutter and the active mesh as the target"""
 
     bl_idname = "mesh.one_click_knife"
     bl_label = "ナイフ投影"
     bl_description = (
-        "最初に選択したメッシュをカッター、最後に選択した（アクティブな）メッシュを"
+        "選択したメッシュまたはカーブをカッター、最後に選択した（アクティブな）メッシュを"
         "投影先として、現在のビュー方向からナイフ投影します"
     )
     bl_options = {'REGISTER', 'UNDO'}
